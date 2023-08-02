@@ -193,4 +193,35 @@ public class TryTest {
     }).flatMap(mockMap);
     verifyNoInteractions(mockMap);
   }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void recover() throws Exception {
+    final var mockRecover = mock(TryFunctions.ThrowingFunction.class);
+
+    Return.of("").recover(mockRecover);
+    verifyNoInteractions(mockRecover);
+
+    Try.of(() -> "").recover(mockRecover);
+    verifyNoInteractions(mockRecover);
+
+    Try.of(() -> {}).recover(mockRecover);
+    verifyNoInteractions(mockRecover);
+
+    Throw.of(new Exception()).recover(mockRecover);
+    verify(mockRecover).apply(ArgumentMatchers.any());
+    reset(mockRecover);
+
+    Try.of((TryFunctions.ThrowingSupplier<String>) () -> {
+      throw new Exception("oops");
+    }).recover(mockRecover);
+    verify(mockRecover).apply(ArgumentMatchers.any());
+    reset(mockRecover);
+
+    Try.of((TryFunctions.ThrowingRunnable) () -> {
+      throw new Exception("oops");
+    }).recover(mockRecover);
+    verify(mockRecover).apply(ArgumentMatchers.any());
+    reset(mockRecover);
+  }
 }
