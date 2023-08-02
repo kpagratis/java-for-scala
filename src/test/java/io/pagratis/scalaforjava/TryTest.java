@@ -1,9 +1,6 @@
 package io.pagratis.scalaforjava;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
-import org.mockito.internal.matchers.Matches;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -138,15 +135,15 @@ public class TryTest {
     final var mockMap = mock(TryFunctions.ThrowingFunction.class);
 
     Return.of("").map(mockMap);
-    verify(mockMap).apply(ArgumentMatchers.any());
+    verify(mockMap).apply("");
     reset(mockMap);
 
     Try.of(() -> "").map(mockMap);
-    verify(mockMap).apply(ArgumentMatchers.any());
+    verify(mockMap).apply("");
     reset(mockMap);
 
     Try.of(() -> {}).map(mockMap);
-    verify(mockMap).apply(ArgumentMatchers.any());
+    verify(mockMap).apply(null);
     reset(mockMap);
 
     Throw.of(new Exception()).map(mockMap);
@@ -169,15 +166,15 @@ public class TryTest {
     final var mockMap = mock(TryFunctions.ThrowingFunction.class);
 
     Return.of("").flatMap(mockMap);
-    verify(mockMap).apply(ArgumentMatchers.any());
+    verify(mockMap).apply("");
     reset(mockMap);
 
     Try.of(() -> "").flatMap(mockMap);
-    verify(mockMap).apply(ArgumentMatchers.any());
+    verify(mockMap).apply("");
     reset(mockMap);
 
     Try.of(() -> {}).flatMap(mockMap);
-    verify(mockMap).apply(ArgumentMatchers.any());
+    verify(mockMap).apply(null);
     reset(mockMap);
 
     Throw.of(new Exception()).flatMap(mockMap);
@@ -208,20 +205,22 @@ public class TryTest {
     Try.of(() -> {}).recover(mockRecover);
     verifyNoInteractions(mockRecover);
 
-    Throw.of(new Exception()).recover(mockRecover);
-    verify(mockRecover).apply(ArgumentMatchers.any());
+    final var exception = new Exception("oops");
+
+    Throw.of(exception).recover(mockRecover);
+    verify(mockRecover).apply(exception);
     reset(mockRecover);
 
     Try.of((TryFunctions.ThrowingSupplier<String>) () -> {
-      throw new Exception("oops");
+      throw exception;
     }).recover(mockRecover);
-    verify(mockRecover).apply(ArgumentMatchers.any());
+    verify(mockRecover).apply(exception);
     reset(mockRecover);
 
     Try.of((TryFunctions.ThrowingRunnable) () -> {
-      throw new Exception("oops");
+      throw exception;
     }).recover(mockRecover);
-    verify(mockRecover).apply(ArgumentMatchers.any());
+    verify(mockRecover).apply(exception);
     reset(mockRecover);
   }
 }
