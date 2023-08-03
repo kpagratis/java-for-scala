@@ -20,4 +20,8 @@ public interface TryFunctions {
   interface Throwing2Function<T1, T2, R> {
     R apply(T1 t1, T2 t2) throws Exception;
   }
+  @FunctionalInterface
+  interface Throwing3Function<T1, T2, T3, R> {
+    R apply(T1 t1, T2 t2, T3 t3) throws Exception;
+  }
 }

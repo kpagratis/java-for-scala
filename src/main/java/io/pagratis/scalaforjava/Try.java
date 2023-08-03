@@ -62,7 +62,38 @@ public sealed interface Try<T> permits Return, Throw {
   }
 
   static <A, B, R> Try<R> join(Try<A> tryA, Try<B> tryB, TryFunctions.Throwing2Function<A, B, R> f) {
-    return tryA.flatMap(a -> tryB.map(b -> f.apply(a, b)));
+    final var throwTrys = Stream
+        .of(tryA, tryB)
+        .filter(Throw.class::isInstance)
+        .map(Throw.class::cast)
+        .toList();
+    return switch (throwTrys.size()) {
+      case 0 -> tryA.flatMap(a -> tryB.map(b -> f.apply(a, b)));
+      case default -> collapseThrows(throwTrys);
+    };
+  }
+
+  static <A, B, C, R> Try<R> join(Try<A> tryA, Try<B> tryB, Try<C> tryC, TryFunctions.Throwing3Function<A, B, C, R> f) {
+    final var throwTrys = Stream
+        .of(tryA, tryB, tryC)
+        .filter(Throw.class::isInstance)
+        .map(Throw.class::cast)
+        .toList();
+    return switch (throwTrys.size()) {
+      case 0 -> tryA.flatMap(a -> tryB.flatMap(b -> tryC.map(c -> f.apply(a, b, c))));
+      case default -> collapseThrows(throwTrys);
+    };
+  }
+
+  static private <R> Try<R> collapseThrows(List<Throw> throwTrys) {
+    return switch (throwTrys.size()) {
+      case 1 -> Throw.of(throwTrys.get(0).exception());
+      default -> {
+        final var exception = throwTrys.get(0).exception();
+        throwTrys.subList(1, throwTrys.size()).stream().map(Throw::exception).forEach(exception::addSuppressed);
+        yield Throw.of(exception);
+      }
+    };
   }
 
   Try<Option<T>> filter(Predicate<T> f);

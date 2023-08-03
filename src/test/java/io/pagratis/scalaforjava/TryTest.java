@@ -142,7 +142,8 @@ public class TryTest {
     verify(mockMap).apply("");
     reset(mockMap);
 
-    Try.of(() -> {}).map(mockMap);
+    Try.of(() -> {
+    }).map(mockMap);
     verify(mockMap).apply(null);
     reset(mockMap);
 
@@ -173,7 +174,8 @@ public class TryTest {
     verify(mockMap).apply("");
     reset(mockMap);
 
-    Try.of(() -> {}).flatMap(mockMap);
+    Try.of(() -> {
+    }).flatMap(mockMap);
     verify(mockMap).apply(null);
     reset(mockMap);
 
@@ -202,7 +204,8 @@ public class TryTest {
     Try.of(() -> "").recover(mockRecover);
     verifyNoInteractions(mockRecover);
 
-    Try.of(() -> {}).recover(mockRecover);
+    Try.of(() -> {
+    }).recover(mockRecover);
     verifyNoInteractions(mockRecover);
 
     final var exception = new Exception("oops");
@@ -222,5 +225,30 @@ public class TryTest {
     }).recover(mockRecover);
     verify(mockRecover).apply(exception);
     reset(mockRecover);
+  }
+
+  @Test
+  void join() {
+    final Try<Integer> r1 = Return.of(1);
+    final Try<Integer> r2 = Return.of(2);
+    final Try<Integer> r3 = Return.of(3);
+    final Try<Integer> e1 = Throw.of(new Exception("1"));
+    final Try<Integer> e2 = Throw.of(new Exception("2"));
+    final Try<Integer> e3 = Throw.of(new Exception("3"));
+
+    assertEquals(3, assertReturn(Try.join(r1, r2, Integer::sum)));
+    assertEquals(6, assertReturn(Try.join(r1, r2, r3, this::sum3)));
+
+    assertEquals("1", assertThrow(Try.join(e1, r1, Integer::sum)).getMessage());
+    final var exception = assertThrow(Try.join(e1, e2, e3, this::sum3));
+    assertEquals("1", exception.getMessage());
+    assertEquals(2, exception.getSuppressed().length);
+    assertEquals("2", exception.getSuppressed()[0].getMessage());
+    assertEquals("3", exception.getSuppressed()[1].getMessage());
+
+  }
+
+  private int sum3(int a, int b, int c) {
+    return a+b+c;
   }
 }
