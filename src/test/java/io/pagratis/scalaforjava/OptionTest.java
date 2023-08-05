@@ -21,8 +21,8 @@ class OptionTest {
   }
 
   @Test
-  void shouldCreateASomeFromNull() {
-    assertInstanceOf(Some.class, Option.of(null));
+  void shouldCreateASome() {
+    assertInstanceOf(Some.class, Option.of(""));
   }
 
   @Test
@@ -70,7 +70,7 @@ class OptionTest {
     reset(ifPresent, orElse);
     doNothing().when(ifPresent).accept(any());
     doNothing().when(orElse).run();
-    Option.of(null).ifPresentOrElse(ifPresent, orElse);
+    Option.of("").ifPresentOrElse(ifPresent, orElse);
     verify(ifPresent).accept(any());
     verifyNoInteractions(orElse);
   }
@@ -93,12 +93,12 @@ class OptionTest {
     final var filter = mock(Predicate.class);
 
     when(filter.test(any())).thenReturn(true);
-    Option.of(null).filter(filter);
+    Option.of("").filter(filter);
     verify(filter).test(any());
 
     reset(filter);
     when(filter.test(any())).thenReturn(true);
-    Some.of(null).filter(filter);
+    Some.of("").filter(filter);
     verify(filter).test(any());
   }
 
