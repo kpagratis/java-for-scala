@@ -50,5 +50,6 @@ public sealed interface Option<T> permits Some, None {
 
   T orElseThrow();
 
-  <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier) throws X;
+  <X extends Exception> T orElseThrow(Supplier<X> f) throws X;
+  <X extends Exception> T orElseThrow(Function<String, X> f, String message) throws X;
 }

@@ -85,6 +85,7 @@ public sealed interface Try<T> permits Return, Throw {
     };
   }
 
+  @SuppressWarnings("rawtypes")
   static private <R> Try<R> collapseThrows(List<Throw> throwTrys) {
     return switch (throwTrys.size()) {
       case 1 -> Throw.of(throwTrys.get(0).exception());

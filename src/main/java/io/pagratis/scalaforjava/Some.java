@@ -60,7 +60,12 @@ public record Some<T>(T value) implements Option<T> {
   }
 
   @Override
-  public <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier) {
+  public <X extends Exception> T orElseThrow(Supplier<X> f) {
+    return value;
+  }
+
+  @Override
+  public <X extends Exception> T orElseThrow(Function<String, X> f, String message) throws X {
     return value;
   }
 

@@ -77,8 +77,13 @@ public record None<T>() implements Option<T> {
   }
 
   @Override
-  public <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
-    throw exceptionSupplier.get();
+  public <X extends Exception> T orElseThrow(Supplier<X> f) throws X {
+    throw f.get();
+  }
+
+  @Override
+  public <X extends Exception> T orElseThrow(Function<String, X> f, String message) throws X {
+    throw f.apply(message);
   }
 
   @Override
